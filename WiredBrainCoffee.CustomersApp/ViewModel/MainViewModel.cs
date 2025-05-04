@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using WiredBrainCoffee.CustomersApp.Data;
@@ -9,10 +11,28 @@ using WiredBrainCoffee.CustomersApp.Model;
 
 namespace WiredBrainCoffee.CustomersApp.ViewModel
 {
-    public class MainViewModel
+    public class MainViewModel : ViewModelBase
     {
         public readonly ICustomerDataProvider _customerDataProvider;
-        public ObservableCollection<Customer> Customers { get; } = new();
+        private CustomerItemViewModel? _selectedCustomer;
+        public ObservableCollection<CustomerItemViewModel> Customers { get; } = new();
+
+        //Caller name is here SelectedCustomer
+        public CustomerItemViewModel? SelectedCustomer 
+        {
+            get { return _selectedCustomer; }
+            set 
+            {
+                if (_selectedCustomer != value)
+                {
+                    _selectedCustomer = value;
+                    base.RaisePropertyChanged();
+                    base.RaisePropertyChanged(nameof(IsCustomerSelected));
+                }          
+            }
+        }
+
+        public bool IsCustomerSelected => SelectedCustomer != null;
 
         public MainViewModel(ICustomerDataProvider customerDataProvider)
         {
@@ -31,7 +51,7 @@ namespace WiredBrainCoffee.CustomersApp.ViewModel
             {
                 foreach (var customer in customers)
                 {
-                    Customers.Add(customer);
+                    Customers.Add(new CustomerItemViewModel(customer));
                 }
             }
         }
